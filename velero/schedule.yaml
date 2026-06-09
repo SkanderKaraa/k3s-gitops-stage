@@ -1,25 +1,17 @@
 apiVersion: velero.io/v1
 kind: Schedule
 metadata:
-  annotations:
-    argocd.argoproj.io/tracking-id: velero-app:velero.io/Schedule:velero/sauvegarde-quotidienne
-    kubectl.kubernetes.io/last-applied-configuration: |
-      {"apiVersion":"velero.io/v1","kind":"Schedule","metadata":{"annotations":{"argocd.argoproj.io/tracking-id":"velero-app:velero.io/Schedule:velero/sauvegarde-quotidienne"},"name":"sauvegarde-quotidienne","namespace":"velero"},"spec":{"schedule":"0 2 * * *","template":{"defaultVolumesToFsBackup":true,"includedNamespaces":["webapp","minio"],"storageLocation":"default","ttl":"168h0m0s"}}}
   name: sauvegarde-quotidienne
   namespace: velero
+  annotations:
+    argocd.argoproj.io/compare-options: IgnoreExtraneous
+    argocd.argoproj.io/sync-options: Prune=false
 spec:
-  schedule: 0 2 * * *
-  skipImmediately: false
+  schedule: "0 2 * * *"
   template:
-    csiSnapshotTimeout: 0s
-    defaultVolumesToFsBackup: true
-    hooks: {}
     includedNamespaces:
-    - webapp
-    - minio
-    itemOperationTimeout: 0s
-    metadata: {}
-    storageLocation: default
+      - webapp
+      - minio
+    defaultVolumesToFsBackup: true
     ttl: 336h0m0s
-  useOwnerReferencesInBackup: false
-  phase: Enabled
+    storageLocation: default
