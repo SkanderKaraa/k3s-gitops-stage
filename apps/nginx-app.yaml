@@ -1,0 +1,23 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: nginx-app
+  namespace: argocd
+  labels:
+    app.kubernetes.io/part-of: gitops-stage
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/SkanderKaraa/k3s-gitops-stage.git
+    targetRevision: main
+    path: nginx
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: webapp
+  syncPolicy:
+    automated:
+      prune: true        # Supprime les ressources retirées de Git
+      selfHeal: true     # Corrige les modifications manuelles sur le cluster
+    syncOptions:
+      - CreateNamespace=true
+

@@ -1,0 +1,23 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: minio-app
+  namespace: argocd
+  labels:
+    app.kubernetes.io/part-of: gitops-stage
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/SkanderKaraa/k3s-gitops-stage.git
+    targetRevision: main
+    path: minio
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: minio
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+
