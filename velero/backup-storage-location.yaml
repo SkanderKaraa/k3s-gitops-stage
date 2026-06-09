@@ -1,0 +1,20 @@
+apiVersion: velero.io/v1
+kind: BackupStorageLocation
+metadata:
+  labels:
+    component: velero
+  name: default
+  namespace: velero
+spec:
+  config:
+    region: minio
+    s3ForcePathStyle: "true"
+    s3Url: http://192.168.152.130:9000
+  default: true
+  objectStorage:
+    bucket: velero-backups
+  provider: aws
+status:
+  lastSyncedTime: "2026-06-09T12:44:30Z"
+  lastValidationTime: "2026-06-09T12:45:01Z"
+  phase: Available
