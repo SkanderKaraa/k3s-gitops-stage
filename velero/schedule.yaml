@@ -20,6 +20,6 @@ spec:
     itemOperationTimeout: 0s
     metadata: {}
     storageLocation: default
-    ttl: 168h0m0s
+    ttl: 336h0m0s
   useOwnerReferencesInBackup: false
   phase: Enabled
