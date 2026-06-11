@@ -17,7 +17,6 @@ spec:
         app: nginx
     spec:
       containers:
-
       - name: nginx
         image: nginx:1.25
         ports:
@@ -27,6 +26,9 @@ spec:
         - name: nginx-config
           mountPath: /etc/nginx/conf.d/default.conf
           subPath: default.conf
+        - name: nginx-config
+          mountPath: /etc/nginx/conf.d/stub.conf
+          subPath: stub.conf
         - name: web-data
           mountPath: /usr/share/nginx/html/data
 

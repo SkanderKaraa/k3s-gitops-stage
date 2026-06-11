@@ -9,16 +9,15 @@ data:
         listen 80;
         location / {
             root /usr/share/nginx/html;
-            index index.html;
-        }
-        # Endpoint stub_status pour l'exporter
-        server {
-            listen 8080;
-            location /stub_status {
-                stub_status on;
-                allow 127.0.0.1;
-                deny all;
-            }
+            index index.html index.htm;
         }
     }
-
+  stub.conf: |
+    server {
+        listen 8080;
+        location /stub_status {
+            stub_status on;
+            allow 127.0.0.1;
+            deny all;
+        }
+    }
