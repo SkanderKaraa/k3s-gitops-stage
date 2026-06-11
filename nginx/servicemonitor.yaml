@@ -1,0 +1,19 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: nginx-monitor
+  namespace: monitoring      # Doit être dans le namespace monitoring
+  labels:
+    release: monitoring      # Doit matcher le label du chart Helm
+spec:
+  namespaceSelector:
+    matchNames:
+      - webapp
+  selector:
+    matchLabels:
+      monitoring: "true"
+  endpoints:
+  - port: metrics
+    interval: 30s
+    path: /metrics
+
