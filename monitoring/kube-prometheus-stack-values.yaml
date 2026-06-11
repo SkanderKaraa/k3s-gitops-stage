@@ -1,0 +1,91 @@
+# ─── Prometheus ───────────────────────────────────────────────
+prometheus:
+  prometheusSpec:
+    retention: 15d                  # Garder 15 jours de métriques
+    retentionSize: 8GB              # Taille max du stockage
+    storageSpec:
+      volumeClaimTemplate:
+        spec:
+          storageClassName: local-path
+          accessModes: ["ReadWriteOnce"]
+          resources:
+            requests:
+              storage: 10Gi
+    # Scraper aussi les pods sans ServiceMonitor
+    podMonitorSelectorNilUsesHelmValues: false
+    serviceMonitorSelectorNilUsesHelmValues: false
+    ruleSelectorNilUsesHelmValues: false
+    scrapeInterval: 30s
+    evaluationInterval: 30s
+ 
+# ─── Grafana ───────────────────────────────────────────────────
+grafana:
+  enabled: true
+  adminPassword: "MonMotDePasseGrafana"
+  service:
+    type: NodePort
+    nodePort: 30300
+  persistence:
+    enabled: true
+    storageClassName: local-path
+    size: 2Gi
+  # Dashboards supplémentaires à importer automatiquement
+  dashboardProviders:
+    dashboardproviders.yaml:
+      apiVersion: 1
+      providers:
+        - name: default
+          folder: ''
+          type: file
+          options:
+            path: /var/lib/grafana/dashboards/default
+  dashboards:
+    default:
+      kubernetes-cluster:
+        gnetId: 7249
+        revision: 1
+        datasource: Prometheus
+      node-exporter:
+        gnetId: 1860
+        revision: 37
+        datasource: Prometheus
+      kubernetes-pods:
+        gnetId: 6781
+        revision: 1
+        datasource: Prometheus
+      nginx-ingress:
+        gnetId: 9614
+        revision: 1
+        datasource: Prometheus
+ 
+# ─── Alertmanager ──────────────────────────────────────────────
+alertmanager:
+  enabled: true
+  alertmanagerSpec:
+    storage:
+      volumeClaimTemplate:
+        spec:
+          storageClassName: local-path
+          accessModes: ["ReadWriteOnce"]
+          resources:
+            requests:
+              storage: 1Gi
+ 
+# ─── node_exporter ─────────────────────────────────────────────
+nodeExporter:
+  enabled: true
+ 
+# ─── kube-state-metrics ────────────────────────────────────────
+kubeStateMetrics:
+  enabled: true
+ 
+# ─── Désactiver ce qui ne tourne pas sur K3s mono-nœud ─────────
+kubeEtcd:
+  enabled: false
+kubeControllerManager:
+  enabled: false
+kubeScheduler:
+  enabled: false
+kubeProxy:
+  enabled: false
+
