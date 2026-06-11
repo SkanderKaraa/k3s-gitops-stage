@@ -1,8 +1,24 @@
-# ─── Prometheus ───────────────────────────────────────────────
+# ================================================================
+# kube-prometheus-stack — values.yaml
+# Calibré pour VM 8 Go RAM — K3s mono-nœud — lab stage
+# ================================================================
+
+# ─── Prometheus ─────────────────────────────────────────────────
 prometheus:
   prometheusSpec:
-    retention: 15d                  # Garder 15 jours de métriques
-    retentionSize: 8GB              # Taille max du stockage
+    retention: 7d
+    retentionSize: 4GB
+    scrapeInterval: 30s
+    evaluationInterval: 30s
+
+    resources:
+      requests:
+        memory: 512Mi
+        cpu: 250m
+      limits:
+        memory: 1Gi
+        cpu: 500m
+
     storageSpec:
       volumeClaimTemplate:
         spec:
@@ -10,26 +26,36 @@ prometheus:
           accessModes: ["ReadWriteOnce"]
           resources:
             requests:
-              storage: 10Gi
-    # Scraper aussi les pods sans ServiceMonitor
+              storage: 5Gi
+
+    # Découverte automatique dans tous les namespaces
     podMonitorSelectorNilUsesHelmValues: false
     serviceMonitorSelectorNilUsesHelmValues: false
     ruleSelectorNilUsesHelmValues: false
-    scrapeInterval: 30s
-    evaluationInterval: 30s
- 
-# ─── Grafana ───────────────────────────────────────────────────
+
+# ─── Grafana ─────────────────────────────────────────────────────
 grafana:
   enabled: true
   adminPassword: "MonMotDePasseGrafana"
+
+  resources:
+    requests:
+      memory: 128Mi
+      cpu: 100m
+    limits:
+      memory: 256Mi
+      cpu: 200m
+
   service:
     type: NodePort
     nodePort: 30300
+
   persistence:
     enabled: true
     storageClassName: local-path
-    size: 2Gi
-  # Dashboards supplémentaires à importer automatiquement
+    size: 1Gi
+
+  # Dashboards auto-importés au démarrage
   dashboardProviders:
     dashboardproviders.yaml:
       apiVersion: 1
@@ -39,6 +65,7 @@ grafana:
           type: file
           options:
             path: /var/lib/grafana/dashboards/default
+
   dashboards:
     default:
       kubernetes-cluster:
@@ -53,33 +80,52 @@ grafana:
         gnetId: 6781
         revision: 1
         datasource: Prometheus
-      nginx-ingress:
-        gnetId: 9614
-        revision: 1
-        datasource: Prometheus
- 
-# ─── Alertmanager ──────────────────────────────────────────────
+
+  # Désactiver les plugins lourds inutiles en lab
+  grafana.ini:
+    analytics:
+      check_for_updates: false
+      reporting_enabled: false
+    plugins:
+      enable_alpha: false
+
+# ─── Alertmanager — désactivé en lab (économie RAM) ─────────────
 alertmanager:
-  enabled: true
-  alertmanagerSpec:
-    storage:
-      volumeClaimTemplate:
-        spec:
-          storageClassName: local-path
-          accessModes: ["ReadWriteOnce"]
-          resources:
-            requests:
-              storage: 1Gi
- 
-# ─── node_exporter ─────────────────────────────────────────────
+  enabled: false
+
+# ─── node_exporter ───────────────────────────────────────────────
 nodeExporter:
   enabled: true
- 
-# ─── kube-state-metrics ────────────────────────────────────────
+  resources:
+    requests:
+      memory: 32Mi
+      cpu: 50m
+    limits:
+      memory: 64Mi
+      cpu: 100m
+
+# ─── kube-state-metrics ──────────────────────────────────────────
 kubeStateMetrics:
   enabled: true
- 
-# ─── Désactiver ce qui ne tourne pas sur K3s mono-nœud ─────────
+  resources:
+    requests:
+      memory: 64Mi
+      cpu: 50m
+    limits:
+      memory: 128Mi
+      cpu: 100m
+
+# ─── Prometheus Operator ─────────────────────────────────────────
+prometheusOperator:
+  resources:
+    requests:
+      memory: 128Mi
+      cpu: 100m
+    limits:
+      memory: 256Mi
+      cpu: 200m
+
+# ─── Désactiver les composants non compatibles K3s ───────────────
 kubeEtcd:
   enabled: false
 kubeControllerManager:
@@ -88,4 +134,3 @@ kubeScheduler:
   enabled: false
 kubeProxy:
   enabled: false
-
