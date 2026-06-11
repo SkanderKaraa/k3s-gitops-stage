@@ -6,13 +6,24 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://github.com/SkanderKaraa/k3s-gitops-stage.git
-    targetRevision: main
-    path: monitoring
+    repoURL: https://prometheus-community.github.io/helm-charts
+    chart: kube-prometheus-stack
+    targetRevision: "65.3.1"
     helm:
       releaseName: monitoring
       valueFiles:
-        - kube-prometheus-stack-values.yaml
+        - $values/monitoring/kube-prometheus-stack-values.yaml
+  sources:
+    - repoURL: https://prometheus-community.github.io/helm-charts
+      chart: kube-prometheus-stack
+      targetRevision: "65.3.1"
+      helm:
+        releaseName: monitoring
+        valueFiles:
+          - $values/monitoring/kube-prometheus-stack-values.yaml
+    - repoURL: https://github.com/SkanderKaraa/k3s-gitops-stage.git
+      targetRevision: main
+      ref: values
   destination:
     server: https://kubernetes.default.svc
     namespace: monitoring
@@ -23,4 +34,3 @@ spec:
     syncOptions:
       - CreateNamespace=true
       - ServerSideApply=true
-
